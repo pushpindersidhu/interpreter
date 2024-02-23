@@ -104,7 +104,7 @@ if (5 < 10) {
     const lexer: Lexer = new Lexer(input);
 
     for (const testToken of tokens) {
-        const token: Token = lexer.getNextToken();
+        const token: Token = lexer.nextToken();
 
         expect(token.Type).toEqual(testToken.Type);
         expect(token.Literal).toEqual(testToken.Literal);

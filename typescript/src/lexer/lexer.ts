@@ -39,7 +39,7 @@ export class Lexer {
         this.readChar();
     }
 
-    public getNextToken(): Token {
+    public nextToken(): Token {
         this.skipWhitespace();
 
         let token: Token | undefined;
