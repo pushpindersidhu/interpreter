@@ -26,6 +26,8 @@ if (5 < 10) {
 10 == 10;
 10 != 9;
 let newVar = 5;
+"foobar"
+"foo bar"
 `
 	tests := []struct {
 		expectedType    token.TokenType
@@ -109,6 +111,8 @@ let newVar = 5;
         {token.ASSIGN, "="},
         {token.INT, "5"},
         {token.SEMICOLON, ";"},
+        {token.STRING, "foobar"},
+        {token.STRING, "foo bar"},
         {token.EOF, ""},
 	}
 
