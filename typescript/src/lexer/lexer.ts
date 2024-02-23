@@ -17,7 +17,7 @@ const _ = "_".charCodeAt(0);
 
 function isLetter(character: string): boolean {
     const char = character.charCodeAt(0);
-    return char >= a && char <= z || char >= A && char <= Z || char === _;
+    return (char >= a && char <= z) || (char >= A && char <= Z) || char === _;
 }
 
 function isDigit(character: string): boolean {
@@ -112,7 +112,7 @@ export class Tokenizer {
                     const ident: string = this.readNumber();
                     token = createToken(TokenType.INT, ident);
                     return token;
-                }else {
+                } else {
                     token = createToken(TokenType.ILLEGAL, this.ch);
                 }
                 break;
@@ -124,7 +124,12 @@ export class Tokenizer {
     }
 
     private skipWhitespace(): void {
-        while (this.ch === " " || this.ch === "\n" || this.ch === "\t" || this.ch === "\r") {
+        while (
+            this.ch === " " ||
+            this.ch === "\n" ||
+            this.ch === "\t" ||
+            this.ch === "\r"
+        ) {
             this.readChar();
         }
     }
