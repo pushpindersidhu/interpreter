@@ -304,6 +304,23 @@ func TestStringConcatenation(t *testing.T) {
 	}
 }
 
+func TestStringComparison(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{`"foo" == "foo";`, true},
+		{`"foo" != "foo";`, false},
+		{`"foo" == "bar";`, false},
+		{`"foo" != "bar";`, true},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testBooleanObject(t, evaluated, tt.expected)
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
