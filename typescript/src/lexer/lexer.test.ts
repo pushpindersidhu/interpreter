@@ -1,4 +1,4 @@
-import { Tokenizer } from "./lexer";
+import { Lexer } from "./lexer";
 import { Token, TokenType } from "../token";
 
 test("nextToken()", function () {
@@ -101,7 +101,7 @@ if (5 < 10) {
         { Type: TokenType.EOF, Literal: "EOF" },
     ];
 
-    const lexer: Tokenizer = new Tokenizer(input);
+    const lexer: Lexer = new Lexer(input);
 
     for (const testToken of tokens) {
         const token: Token = lexer.getNextToken();

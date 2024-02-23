@@ -25,7 +25,7 @@ function isDigit(character: string): boolean {
     return char >= _0 && char <= _9;
 }
 
-export class Tokenizer {
+export class Lexer {
     private input: string;
     private position: number;
     private readPosition: number;
