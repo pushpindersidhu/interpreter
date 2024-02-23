@@ -25,6 +25,7 @@ if (5 < 10) {
 
 10 == 10;
 10 != 9;
+let newVar = 5;
 `
 	tests := []struct {
 		expectedType    token.TokenType
@@ -103,7 +104,12 @@ if (5 < 10) {
 		{token.NOT_EQ, "!="},
 		{token.INT, "9"},
 		{token.SEMICOLON, ";"},
-		{token.EOF, ""},
+        {token.LET, "let"},
+        {token.IDENT, "newVar"},
+        {token.ASSIGN, "="},
+        {token.INT, "5"},
+        {token.SEMICOLON, ";"},
+        {token.EOF, ""},
 	}
 
 	l := New(input)
