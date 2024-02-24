@@ -1,7 +1,7 @@
 import { Token, Tokens, TokenType, lookUpIdent } from "../token";
 
 export function createToken(type: TokenType, literal: string): Token {
-    return { Type: type, Literal: literal };
+    return { type: type, literal: literal };
 }
 
 const _0 = "0".charCodeAt(0);

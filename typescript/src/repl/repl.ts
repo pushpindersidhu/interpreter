@@ -1,6 +1,6 @@
 import readline from "readline";
-import { Tokenizer } from "../lexer";
-import { Token, TokenType } from "../token";
+import { Lexer } from "../lexer";
+import { Token, Tokens } from "../token";
 
 export function repl() {
     const PROMPT = ">>> ";
@@ -12,14 +12,14 @@ export function repl() {
     });
 
     rs.on("line", function (input: string) {
-        const lexer: Tokenizer = new Tokenizer(input);
+        const lexer = new Lexer(input);
 
         while (true) {
-            const token: Token = lexer.getNextToken();
+            const token = lexer.nextToken();
 
             console.log(token);
 
-            if (token.Type == TokenType.EOF) {
+            if (token.type == Tokens.EOF) {
                 rs.prompt();
                 break;
             }

@@ -48,6 +48,6 @@ export function lookUpIdent(ident: string): TokenType {
 export type TokenType = (typeof Tokens)[keyof typeof Tokens];
 
 export type Token = {
-    Type: TokenType;
-    Literal: string;
+    type: TokenType;
+    literal: string;
 };
