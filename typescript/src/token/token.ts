@@ -1,4 +1,4 @@
-export const TokenType = {
+export const Tokens = {
     EOF: "EOF",
     IDENT: "IDENT",
     ILLEGAL: "ILLEGAL",
@@ -12,8 +12,8 @@ export const TokenType = {
     SLASH: "/",
     LT: "<",
     GT: ">",
-    EQUAL: "==",
-    NOTEQUAL: "!=",
+    EQ: "==",
+    NOT_EQ: "!=",
 
     COMMA: ",",
     SEMICOLON: ";",
@@ -32,22 +32,22 @@ export const TokenType = {
 } as const;
 
 export const Keywords = {
-    fn: TokenType.FUNCTION,
-    let: TokenType.LET,
-    true: TokenType.TRUE,
-    false: TokenType.FALSE,
-    if: TokenType.IF,
-    else: TokenType.ELSE,
-    return: TokenType.RETURN,
+    fn: Tokens.FUNCTION,
+    let: Tokens.LET,
+    true: Tokens.TRUE,
+    false: Tokens.FALSE,
+    if: Tokens.IF,
+    else: Tokens.ELSE,
+    return: Tokens.RETURN,
 };
 
-export function lookUpIdent(ident: string): TokenItem {
-    return Keywords[ident as keyof typeof Keywords] || TokenType.IDENT;
+export function lookUpIdent(ident: string): TokenType {
+    return Keywords[ident as keyof typeof Keywords] || Tokens.IDENT;
 }
 
-export type TokenItem = (typeof TokenType)[keyof typeof TokenType];
+export type TokenType = (typeof Tokens)[keyof typeof Tokens];
 
 export type Token = {
-    Type: TokenItem;
+    Type: TokenType;
     Literal: string;
 };

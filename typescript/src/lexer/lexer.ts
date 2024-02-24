@@ -1,6 +1,6 @@
-import { Token, TokenItem, TokenType, lookUpIdent } from "../token";
+import { Token, Tokens, TokenType, lookUpIdent } from "../token";
 
-export function createToken(type: TokenItem, literal: string): Token {
+export function createToken(type: TokenType, literal: string): Token {
     return { Type: type, Literal: literal };
 }
 
@@ -49,71 +49,71 @@ export class Lexer {
                 if (this.peekChar() === "=") {
                     const ch = this.ch;
                     this.readChar();
-                    token = createToken(TokenType.EQUAL, ch + this.ch);
+                    token = createToken(Tokens.EQ, ch + this.ch);
                 } else {
-                    token = createToken(TokenType.ASSIGN, this.ch);
+                    token = createToken(Tokens.ASSIGN, this.ch);
                 }
                 break;
             case ";":
-                token = createToken(TokenType.SEMICOLON, this.ch);
+                token = createToken(Tokens.SEMICOLON, this.ch);
                 break;
             case "(":
-                token = createToken(TokenType.LPAREN, this.ch);
+                token = createToken(Tokens.LPAREN, this.ch);
                 break;
             case ")":
-                token = createToken(TokenType.RPAREN, this.ch);
+                token = createToken(Tokens.RPAREN, this.ch);
                 break;
             case ",":
-                token = createToken(TokenType.COMMA, this.ch);
+                token = createToken(Tokens.COMMA, this.ch);
                 break;
             case "+":
-                token = createToken(TokenType.PLUS, this.ch);
+                token = createToken(Tokens.PLUS, this.ch);
                 break;
             case "-":
-                token = createToken(TokenType.MINUS, this.ch);
+                token = createToken(Tokens.MINUS, this.ch);
                 break;
             case "*":
-                token = createToken(TokenType.ASTERISK, this.ch);
+                token = createToken(Tokens.ASTERISK, this.ch);
                 break;
             case "!":
                 if (this.peekChar() == "=") {
                     const ch = this.ch;
                     this.readChar();
-                    token = createToken(TokenType.NOTEQUAL, ch + this.ch);
+                    token = createToken(Tokens.NOT_EQ, ch + this.ch);
                 } else {
-                    token = createToken(TokenType.BANG, this.ch);
+                    token = createToken(Tokens.BANG, this.ch);
                 }
                 break;
             case "/":
-                token = createToken(TokenType.SLASH, this.ch);
+                token = createToken(Tokens.SLASH, this.ch);
                 break;
             case "<":
-                token = createToken(TokenType.LT, this.ch);
+                token = createToken(Tokens.LT, this.ch);
                 break;
             case ">":
-                token = createToken(TokenType.GT, this.ch);
+                token = createToken(Tokens.GT, this.ch);
                 break;
             case "{":
-                token = createToken(TokenType.LBRACE, this.ch);
+                token = createToken(Tokens.LBRACE, this.ch);
                 break;
             case "}":
-                token = createToken(TokenType.RBRACE, this.ch);
+                token = createToken(Tokens.RBRACE, this.ch);
                 break;
             case "\0":
-                token = createToken(TokenType.EOF, "EOF");
+                token = createToken(Tokens.EOF, "EOF");
                 break;
             default:
                 if (isLetter(this.ch)) {
                     const ident: string = this.readIdentifier();
-                    const type: TokenItem = lookUpIdent(ident);
+                    const type: TokenType = lookUpIdent(ident);
                     token = createToken(type, ident);
                     return token;
                 } else if (isDigit(this.ch)) {
                     const ident: string = this.readNumber();
-                    token = createToken(TokenType.INT, ident);
+                    token = createToken(Tokens.INT, ident);
                     return token;
                 } else {
-                    token = createToken(TokenType.ILLEGAL, this.ch);
+                    token = createToken(Tokens.ILLEGAL, this.ch);
                 }
                 break;
         }
