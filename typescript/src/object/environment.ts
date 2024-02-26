@@ -1,4 +1,4 @@
-import { Object } from './object';
+import { Object } from "./object";
 
 export class Environment {
     private store: { [key: string]: Object };
@@ -27,4 +27,3 @@ export class Environment {
         return value;
     }
 }
-

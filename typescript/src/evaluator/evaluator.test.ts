@@ -1,7 +1,14 @@
 import { Evaluator } from "./evaluator";
 import { Lexer } from "../lexer";
 import { Parser } from "../parser";
-import { Object, ObjectTypes, Integer, Boolean, Environment, Function } from "../object";
+import {
+    Object,
+    ObjectTypes,
+    Integer,
+    Boolean,
+    Environment,
+    Function,
+} from "../object";
 
 test("evaluateIntegerLiteral", () => {
     const testCases = [
@@ -153,7 +160,10 @@ test("evaluateCallExpressions", () => {
         { input: "let func = fn(x) { return x; }; func(5);", expected: 5 },
         { input: "let double = fn(x) { x * 2; }; double(5);", expected: 10 },
         { input: "let add = fn(x, y) { x + y; }; add(5, 5);", expected: 10 },
-        { input: "let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", expected: 20 },
+        {
+            input: "let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));",
+            expected: 20,
+        },
         { input: "fn(x) { x; }(5)", expected: 5 },
     ];
 

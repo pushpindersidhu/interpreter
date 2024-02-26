@@ -70,7 +70,11 @@ export class Function implements Object {
     body: BlockStatement;
     env: Environment;
 
-    constructor(parameters: Identifier[], body: BlockStatement, env: Environment) {
+    constructor(
+        parameters: Identifier[],
+        body: BlockStatement,
+        env: Environment,
+    ) {
         this.parameters = parameters;
         this.body = body;
         this.env = env;
@@ -93,4 +97,3 @@ export class ReturnValue implements Object {
         return this.value.inspect();
     }
 }
-

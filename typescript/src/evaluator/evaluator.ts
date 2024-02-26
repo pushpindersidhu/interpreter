@@ -15,7 +15,15 @@ import {
     Identifier,
 } from "../ast";
 import { Environment, ReturnValue } from "../object";
-import { Object, ObjectTypes, Null, Error, Integer, Boolean, Function } from "../object";
+import {
+    Object,
+    ObjectTypes,
+    Null,
+    Error,
+    Integer,
+    Boolean,
+    Function,
+} from "../object";
 
 export class Evaluator {
     private null;
@@ -256,7 +264,6 @@ export class Evaluator {
             ) {
                 return result;
             }
-
         }
 
         return result;
@@ -284,7 +291,10 @@ export class Evaluator {
         return this.null;
     }
 
-    private evalReturnStatement(node: ReturnStatement, env: Environment): Object {
+    private evalReturnStatement(
+        node: ReturnStatement,
+        env: Environment,
+    ): Object {
         const value = this.eval(node.value, env);
         if (value.type === ObjectTypes.ERROR) {
             return value;
