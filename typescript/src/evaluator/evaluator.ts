@@ -288,7 +288,7 @@ export class Evaluator {
             return value;
         }
 
-        return this.null;
+        return this.newError(`identifier not found: ${node.value}`);
     }
 
     private evalReturnStatement(
