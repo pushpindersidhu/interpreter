@@ -14,7 +14,6 @@ import {
     CallExpression,
     Identifier,
 } from "../ast";
-import { Environment, ReturnValue } from "../object";
 import {
     Object,
     ObjectTypes,
@@ -23,13 +22,14 @@ import {
     Integer,
     Boolean,
     Function,
+    Environment,
+    ReturnValue,
 } from "../object";
 
 export class Evaluator {
     private null;
     private true;
     private false;
-    private env: Environment;
 
     constructor() {
         this.null = new Null();
@@ -98,7 +98,7 @@ export class Evaluator {
                 return this.evalIdentifier(node as Identifier, env);
 
             case FunctionLiteral:
-                return this.evalFunctionLiteral(node as FunctionLiteral);
+                return this.evalFunctionLiteral(node as FunctionLiteral, env);
 
             case ReturnStatement:
                 return this.evalReturnStatement(node as ReturnStatement, env);
@@ -303,8 +303,8 @@ export class Evaluator {
         return new ReturnValue(value);
     }
 
-    private evalFunctionLiteral(node: FunctionLiteral): Object {
-        return new Function(node.parameters, node.body, this.env);
+    private evalFunctionLiteral(node: FunctionLiteral, env: Environment): Object {
+        return new Function(node.parameters, node.body, env);
     }
 
     private evalCallExpression(node: CallExpression, env: Environment): Object {
