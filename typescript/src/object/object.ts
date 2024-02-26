@@ -1,6 +1,7 @@
 export const ObjectTypes = {
     NULL: "NULL",
     INTEGER: "INTEGER",
+    BOOLEAN: "BOOLEAN",
 };
 
 export type ObjectType = (typeof ObjectTypes)[keyof typeof ObjectTypes];
@@ -13,7 +14,7 @@ export interface Object {
 export class Null implements Object {
     type = ObjectTypes.NULL;
 
-    inspect() {
+    inspect(): string {
         return "null";
     }
 }
@@ -26,7 +27,20 @@ export class Integer implements Object {
         this.value = value;
     }
 
-    inspect() {
+    inspect(): string {
+        return this.value.toString();
+    }
+}
+
+export class Boolean implements Object {
+    type = ObjectTypes.BOOLEAN;
+    value: boolean;
+
+    constructor(value: boolean) {
+        this.value = value;
+    }
+
+    inspect(): string {
         return this.value.toString();
     }
 }

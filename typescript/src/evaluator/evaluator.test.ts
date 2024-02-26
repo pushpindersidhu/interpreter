@@ -1,7 +1,7 @@
 import { Evaluator } from "./evaluator";
 import { Lexer } from "../lexer";
 import { Parser } from "../parser";
-import { Object, ObjectTypes, Integer } from "../object";
+import { Object, ObjectTypes, Integer, Boolean } from "../object";
 
 test("evaluateIntegerLiteral", () => {
     const testCases = [
@@ -12,6 +12,18 @@ test("evaluateIntegerLiteral", () => {
     for (const { input, expected } of testCases) {
         const evaluated = evaluate(input);
         testIntegerObject(evaluated, expected);
+    }
+});
+
+test("evaluateBooleanLiteral", () => {
+    const testCases = [
+        { input: "true", expected: true },
+        { input: "false", expected: false },
+    ];
+
+    for (const { input, expected } of testCases) {
+        const evaluated = evaluate(input);
+        testBooleanObject(evaluated, expected);
     }
 });
 
@@ -30,4 +42,12 @@ function testIntegerObject(obj: Object, expected: number) {
     const intObj = obj as Integer;
     expect(intObj.value).toBe(expected);
     expect(intObj.type).toBe(ObjectTypes.INTEGER);
+}
+
+function testBooleanObject(obj: Object, expected: boolean) {
+    expect(obj).toBeInstanceOf(Boolean);
+
+    const boolObj = obj as Boolean;
+    expect(boolObj.value).toBe(expected);
+    expect(boolObj.type).toBe(ObjectTypes.BOOLEAN);
 }

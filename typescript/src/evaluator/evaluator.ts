@@ -1,5 +1,5 @@
-import { Node, Program, IntegerLiteral, ExpressionStatement } from "../ast";
-import { Integer, Object, Null } from "../object";
+import { Node, Program, IntegerLiteral, ExpressionStatement, BooleanLiteral } from "../ast";
+import { Object, Null, Integer, Boolean } from "../object";
 
 export class Evaluator {
     private nullObject;
@@ -16,6 +16,8 @@ export class Evaluator {
                 return this.eval((node as ExpressionStatement).expression);
             case IntegerLiteral:
                 return this.evalIntegerLiteral(node as IntegerLiteral);
+            case BooleanLiteral:
+                return this.evalBooleanLiteral(node as BooleanLiteral);
 
             default:
                 return this.nullObject;
@@ -34,5 +36,9 @@ export class Evaluator {
 
     private evalIntegerLiteral(node: IntegerLiteral): Object {
         return new Integer(node.value);
+    }
+
+    private evalBooleanLiteral(node: BooleanLiteral): Object {
+        return new Boolean(node.value);
     }
 }
