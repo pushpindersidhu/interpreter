@@ -1,4 +1,12 @@
-import { Node, Program, IntegerLiteral, ExpressionStatement, BooleanLiteral, PrefixExpression } from "../ast";
+import {
+    Node,
+    Program,
+    IntegerLiteral,
+    ExpressionStatement,
+    BooleanLiteral,
+    PrefixExpression,
+    InfixExpression,
+} from "../ast";
 import { Object, ObjectTypes, Null, Error, Integer, Boolean } from "../object";
 
 export class Evaluator {
@@ -26,7 +34,7 @@ export class Evaluator {
             case BooleanLiteral:
                 return this.evalBooleanLiteral(node as BooleanLiteral);
 
-            case PrefixExpression:
+            case PrefixExpression: {
                 const prefixExpression = node as PrefixExpression;
                 const right = this.eval(prefixExpression.right);
 
@@ -34,7 +42,29 @@ export class Evaluator {
                     return right;
                 }
 
-                return this.evalPrefixExpression(prefixExpression.operator, right);
+                return this.evalPrefixExpression(
+                    prefixExpression.operator,
+                    right,
+                );
+            }
+
+            case InfixExpression: {
+                const infixExpression = node as InfixExpression;
+
+                const left = this.eval(infixExpression.left);
+                if (left.type == ObjectTypes.ERROR) {
+                    return left;
+                }
+
+                const right = this.eval(infixExpression.right);
+                if (right.type == ObjectTypes.ERROR) {
+                    return right;
+                }
+
+                return this.evalInfixExpression(
+                    infixExpression.operator, left, right
+                );
+            }
 
             default:
                 return this.null;
@@ -66,7 +96,9 @@ export class Evaluator {
             case "-":
                 return this.evalMinusPrefixExpression(right);
             default:
-                return this.newError(`unknown operator: ${operator}${right.type}`);
+                return this.newError(
+                    `unknown operator: ${operator}${right.type}`,
+                );
         }
     }
 
@@ -89,6 +121,47 @@ export class Evaluator {
         }
 
         return new Integer(-(right as Integer).value);
+    }
+
+    private evalInfixExpression(
+        operator: string,
+        left: Object,
+        right: Object,
+    ): Object {
+        if (
+            left.type === ObjectTypes.INTEGER &&
+            right.type === ObjectTypes.INTEGER
+        ) {
+            return this.evalIntegerInfixExpression(operator, left, right);
+        }
+
+        return this.newError(
+            `unknown operator: ${left.type} ${operator} ${right.type}`,
+        );
+    }
+
+    private evalIntegerInfixExpression(
+        operator: string,
+        left: Object,
+        right: Object,
+    ): Object {
+        const leftValue = (left as Integer).value;
+        const rightValue = (right as Integer).value;
+
+        switch (operator) {
+            case "+":
+                return new Integer(leftValue + rightValue);
+            case "-":
+                return new Integer(leftValue - rightValue);
+            case "*":
+                return new Integer(leftValue * rightValue);
+            case "/":
+                return new Integer(leftValue / rightValue);
+            default:
+                return this.newError(
+                    `unknown operator: ${left.type} ${operator} ${right.type}`,
+                );
+        }
     }
 
     private newError(msg: string): Object {
