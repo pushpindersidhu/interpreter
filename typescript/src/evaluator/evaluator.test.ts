@@ -173,6 +173,20 @@ test("evaluateCallExpressions", () => {
     }
 });
 
+test("closures", () => {
+    const input = `
+    let newAdder = fn(x) {
+        fn(y) { x + y; };
+    };
+
+    let addTwo = newAdder(2);
+    addTwo(2);
+    `;
+
+    const evaluated = evaluate(input);
+    testIntegerObject(evaluated, 4);
+});
+
 function evaluate(input: string) {
     const lexer = new Lexer(input);
     const parser = new Parser(lexer);
