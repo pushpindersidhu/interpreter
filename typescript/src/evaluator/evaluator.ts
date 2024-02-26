@@ -63,6 +63,8 @@ export class Evaluator {
         switch (operator) {
             case "!":
                 return this.evalBangPrefixExpression(right);
+            case "-":
+                return this.evalMinusPrefixExpression(right);
             default:
                 return this.newError(`unknown operator: ${operator}${right.type}`);
         }
@@ -79,6 +81,14 @@ export class Evaluator {
             default:
                 return this.false;
         }
+    }
+
+    private evalMinusPrefixExpression(right: Object): Object {
+        if (right.type !== ObjectTypes.INTEGER) {
+            return this.newError(`unknown operator: -${right.type}`);
+        }
+
+        return new Integer(-(right as Integer).value);
     }
 
     private newError(msg: string): Object {
