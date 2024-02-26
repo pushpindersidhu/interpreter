@@ -62,7 +62,9 @@ export class Evaluator {
                 }
 
                 return this.evalInfixExpression(
-                    infixExpression.operator, left, right
+                    infixExpression.operator,
+                    left,
+                    right,
                 );
             }
 
@@ -135,6 +137,20 @@ export class Evaluator {
             return this.evalIntegerInfixExpression(operator, left, right);
         }
 
+        if (operator === "==") {
+            return left === right ? this.true : this.false;
+        }
+
+        if (operator === "!=") {
+            return left !== right ? this.true : this.false;
+        }
+
+        if (left.type !== right.type) {
+            return this.newError(
+                `type mismatch: ${left.type} ${operator} ${right.type}`,
+            );
+        }
+
         return this.newError(
             `unknown operator: ${left.type} ${operator} ${right.type}`,
         );
@@ -157,6 +173,14 @@ export class Evaluator {
                 return new Integer(leftValue * rightValue);
             case "/":
                 return new Integer(leftValue / rightValue);
+            case "<":
+                return leftValue < rightValue ? this.true : this.false;
+            case ">":
+                return leftValue > rightValue ? this.true : this.false;
+            case "==":
+                return leftValue === rightValue ? this.true : this.false;
+            case "!=":
+                return leftValue !== rightValue ? this.true : this.false;
             default:
                 return this.newError(
                     `unknown operator: ${left.type} ${operator} ${right.type}`,
