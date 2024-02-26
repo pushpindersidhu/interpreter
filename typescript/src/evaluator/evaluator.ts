@@ -8,13 +8,20 @@ import {
     InfixExpression,
     IfExpression,
     BlockStatement,
+    LetStatement,
+    ReturnStatement,
+    FunctionLiteral,
+    CallExpression,
+    Identifier,
 } from "../ast";
-import { Object, ObjectTypes, Null, Error, Integer, Boolean } from "../object";
+import { Environment, ReturnValue } from "../object";
+import { Object, ObjectTypes, Null, Error, Integer, Boolean, Function } from "../object";
 
 export class Evaluator {
     private null;
     private true;
     private false;
+    private env: Environment;
 
     constructor() {
         this.null = new Null();
@@ -22,13 +29,13 @@ export class Evaluator {
         this.false = new Boolean(false);
     }
 
-    public eval(node: Node): Object {
+    public eval(node: Node, env: Environment): Object {
         switch (node.constructor) {
             case Program:
-                return this.evalProgram(node as Program);
+                return this.evalProgram(node as Program, env);
 
             case ExpressionStatement:
-                return this.eval((node as ExpressionStatement).expression);
+                return this.eval((node as ExpressionStatement).expression, env);
 
             case IntegerLiteral:
                 return this.evalIntegerLiteral(node as IntegerLiteral);
@@ -38,7 +45,7 @@ export class Evaluator {
 
             case PrefixExpression: {
                 const prefixExpression = node as PrefixExpression;
-                const right = this.eval(prefixExpression.right);
+                const right = this.eval(prefixExpression.right, env);
 
                 if (right.type === ObjectTypes.ERROR) {
                     return right;
@@ -53,12 +60,12 @@ export class Evaluator {
             case InfixExpression: {
                 const infixExpression = node as InfixExpression;
 
-                const left = this.eval(infixExpression.left);
+                const left = this.eval(infixExpression.left, env);
                 if (left.type == ObjectTypes.ERROR) {
                     return left;
                 }
 
-                const right = this.eval(infixExpression.right);
+                const right = this.eval(infixExpression.right, env);
                 if (right.type == ObjectTypes.ERROR) {
                     return right;
                 }
@@ -71,20 +78,44 @@ export class Evaluator {
             }
 
             case IfExpression:
-                return this.evalIfExpression(node as IfExpression);
+                return this.evalIfExpression(node as IfExpression, env);
 
             case BlockStatement:
-                return this.evalBlockStatement(node as BlockStatement);
+                return this.evalBlockStatement(node as BlockStatement, env);
+
+            case LetStatement:
+                return this.evalLetStatement(node as LetStatement, env);
+
+            case Identifier:
+                return this.evalIdentifier(node as Identifier, env);
+
+            case FunctionLiteral:
+                return this.evalFunctionLiteral(node as FunctionLiteral);
+
+            case ReturnStatement:
+                return this.evalReturnStatement(node as ReturnStatement, env);
+
+            case CallExpression:
+                return this.evalCallExpression(node as CallExpression, env);
+
             default:
                 return this.null;
         }
     }
 
-    private evalProgram(node: Program): Object {
+    private evalProgram(node: Program, env: Environment): Object {
         let result: Object = this.null;
 
         for (let statement of node.statements) {
-            result = this.eval(statement);
+            result = this.eval(statement, env);
+
+            if (result.type === ObjectTypes.RETURN_VALUE) {
+                return (result as ReturnValue).value;
+            }
+
+            if (result.type === ObjectTypes.ERROR) {
+                return result;
+            }
         }
 
         return result;
@@ -195,32 +226,112 @@ export class Evaluator {
         }
     }
 
-    private evalIfExpression(ie: IfExpression): Object {
-        const condition = this.eval(ie.condition);
+    private evalIfExpression(ie: IfExpression, env: Environment): Object {
+        const condition = this.eval(ie.condition, env);
 
         if (condition.type === ObjectTypes.ERROR) {
             return condition;
         }
 
         if (this.isTruthy(condition)) {
-            return this.eval(ie.consequence);
+            return this.eval(ie.consequence, env);
         }
 
         if (ie.alternative) {
-            return this.eval(ie.alternative);
+            return this.eval(ie.alternative, env);
         }
 
         return this.null;
     }
 
-    private evalBlockStatement(node: BlockStatement): Object {
+    private evalBlockStatement(node: BlockStatement, env: Environment): Object {
         let result: Object = this.null;
 
         for (let statement of node.statements) {
-            result = this.eval(statement);
+            result = this.eval(statement, env);
+
+            if (
+                result.type === ObjectTypes.RETURN_VALUE ||
+                result.type === ObjectTypes.ERROR
+            ) {
+                return result;
+            }
+
         }
 
         return result;
+    }
+
+    private evalLetStatement(node: LetStatement, env: Environment): Object {
+        const value = this.eval(node.value, env);
+
+        if (value.type === ObjectTypes.ERROR) {
+            return value;
+        }
+
+        env.set(node.name.value, value);
+
+        return this.null;
+    }
+
+    private evalIdentifier(node: Identifier, env: Environment): Object {
+        const value = env.get(node.value);
+
+        if (value) {
+            return value;
+        }
+
+        return this.null;
+    }
+
+    private evalReturnStatement(node: ReturnStatement, env: Environment): Object {
+        const value = this.eval(node.value, env);
+        if (value.type === ObjectTypes.ERROR) {
+            return value;
+        }
+
+        return new ReturnValue(value);
+    }
+
+    private evalFunctionLiteral(node: FunctionLiteral): Object {
+        return new Function(node.parameters, node.body, this.env);
+    }
+
+    private evalCallExpression(node: CallExpression, env: Environment): Object {
+        const func = this.eval(node.function, env);
+
+        if (func.type === ObjectTypes.ERROR) {
+            return func;
+        }
+
+        const args = node.arguments.map((arg) => this.eval(arg, env));
+
+        if (args.length === 1 && args[0].type === ObjectTypes.ERROR) {
+            return args[0];
+        }
+
+        return this.applyFunction(func, args);
+    }
+
+    private applyFunction(func: Object, args: Object[]): Object {
+        if (func.type !== ObjectTypes.FUNCTION) {
+            return this.newError(`not a function: ${func.type}`);
+        }
+
+        const fn = func as Function;
+        const extendedEnv = new Environment(fn.env);
+
+        for (let i = 0; i < fn.parameters.length; i++) {
+            extendedEnv.set(fn.parameters[i].value, args[i]);
+        }
+
+        const evaluated = this.eval(fn.body, extendedEnv);
+
+        if (evaluated.type === ObjectTypes.RETURN_VALUE) {
+            return (evaluated as ReturnValue).value;
+        }
+
+        return evaluated;
     }
 
     private newError(msg: string): Object {

@@ -1,8 +1,13 @@
+import { Identifier, BlockStatement } from "../ast";
+import { Environment } from "./environment";
+
 export const ObjectTypes = {
     NULL: "NULL",
     INTEGER: "INTEGER",
     BOOLEAN: "BOOLEAN",
     ERROR: "ERROR",
+    FUNCTION: "FUNCTION",
+    RETURN_VALUE: "RETURN_VALUE",
 };
 
 export type ObjectType = (typeof ObjectTypes)[keyof typeof ObjectTypes];
@@ -59,4 +64,33 @@ export class Error implements Object {
     }
 }
 
+export class Function implements Object {
+    type = ObjectTypes.FUNCTION;
+    parameters: Identifier[];
+    body: BlockStatement;
+    env: Environment;
+
+    constructor(parameters: Identifier[], body: BlockStatement, env: Environment) {
+        this.parameters = parameters;
+        this.body = body;
+        this.env = env;
+    }
+
+    inspect(): string {
+        return `fn(${this.parameters.join(", ")}) {\n${this.body.toString()}\n}`;
+    }
+}
+
+export class ReturnValue implements Object {
+    type = ObjectTypes.RETURN_VALUE;
+    value: Object;
+
+    constructor(value: Object) {
+        this.value = value;
+    }
+
+    inspect(): string {
+        return this.value.inspect();
+    }
+}
 
