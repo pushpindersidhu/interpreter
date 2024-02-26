@@ -1,7 +1,8 @@
 import readline from "readline";
 import { Lexer } from "../lexer";
-import { Token, Tokens } from "../token";
 import { Parser } from "../parser";
+import { Evaluator } from "../evaluator";
+import { Environment } from "../object";
 
 export function repl() {
     const PROMPT = ">>> ";
@@ -16,8 +17,11 @@ export function repl() {
         const lexer = new Lexer(input);
         const parser = new Parser(lexer);
         const program = parser.parseProgram();
+        const evaluator = new Evaluator();
+        const env = new Environment();
 
-        console.log(program.toString());
+        const evaluated = evaluator.eval(program, env);
+        console.log(evaluated.inspect());
 
         rs.prompt();
     });
