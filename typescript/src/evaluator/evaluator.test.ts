@@ -27,6 +27,22 @@ test("evaluateBooleanLiteral", () => {
     }
 });
 
+test("evaluateBangOperator", () => {
+    const testCases = [
+        { input: "!true", expected: false },
+        { input: "!false", expected: true },
+        { input: "!5", expected: false },
+        { input: "!!true", expected: true },
+        { input: "!!false", expected: false },
+        { input: "!!5", expected: true },
+    ];
+
+    for (const { input, expected } of testCases) {
+        const evaluated = evaluate(input);
+        testBooleanObject(evaluated, expected);
+    }
+});
+
 function evaluate(input: string) {
     const lexer = new Lexer(input);
     const parser = new Parser(lexer);
@@ -51,3 +67,4 @@ function testBooleanObject(obj: Object, expected: boolean) {
     expect(boolObj.value).toBe(expected);
     expect(boolObj.type).toBe(ObjectTypes.BOOLEAN);
 }
+

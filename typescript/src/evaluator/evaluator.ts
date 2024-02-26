@@ -1,31 +1,48 @@
-import { Node, Program, IntegerLiteral, ExpressionStatement, BooleanLiteral } from "../ast";
-import { Object, Null, Integer, Boolean } from "../object";
+import { Node, Program, IntegerLiteral, ExpressionStatement, BooleanLiteral, PrefixExpression } from "../ast";
+import { Object, ObjectTypes, Null, Error, Integer, Boolean } from "../object";
 
 export class Evaluator {
-    private nullObject;
+    private null;
+    private true;
+    private false;
 
     constructor() {
-        this.nullObject = new Null();
+        this.null = new Null();
+        this.true = new Boolean(true);
+        this.false = new Boolean(false);
     }
 
     public eval(node: Node): Object {
         switch (node.constructor) {
             case Program:
                 return this.evalProgram(node as Program);
+
             case ExpressionStatement:
                 return this.eval((node as ExpressionStatement).expression);
+
             case IntegerLiteral:
                 return this.evalIntegerLiteral(node as IntegerLiteral);
+
             case BooleanLiteral:
                 return this.evalBooleanLiteral(node as BooleanLiteral);
 
+            case PrefixExpression:
+                const prefixExpression = node as PrefixExpression;
+                const right = this.eval(prefixExpression.right);
+
+                if (right.type === ObjectTypes.ERROR) {
+                    return right;
+                }
+
+                return this.evalPrefixExpression(prefixExpression.operator, right);
+
             default:
-                return this.nullObject;
+                return this.null;
         }
     }
 
     private evalProgram(node: Program): Object {
-        let result: Object = this.nullObject;
+        let result: Object = this.null;
 
         for (let statement of node.statements) {
             result = this.eval(statement);
@@ -39,6 +56,32 @@ export class Evaluator {
     }
 
     private evalBooleanLiteral(node: BooleanLiteral): Object {
-        return new Boolean(node.value);
+        return node.value ? this.true : this.false;
+    }
+
+    private evalPrefixExpression(operator: string, right: Object): Object {
+        switch (operator) {
+            case "!":
+                return this.evalBangPrefixExpression(right);
+            default:
+                return this.newError(`unknown operator: ${operator}${right.type}`);
+        }
+    }
+
+    private evalBangPrefixExpression(right: Object): Object {
+        switch (right) {
+            case this.true:
+                return this.false;
+            case this.false:
+                return this.true;
+            case this.null:
+                return this.true;
+            default:
+                return this.false;
+        }
+    }
+
+    private newError(msg: string): Object {
+        return new Error(msg);
     }
 }
