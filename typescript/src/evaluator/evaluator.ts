@@ -6,6 +6,8 @@ import {
     BooleanLiteral,
     PrefixExpression,
     InfixExpression,
+    IfExpression,
+    BlockStatement,
 } from "../ast";
 import { Object, ObjectTypes, Null, Error, Integer, Boolean } from "../object";
 
@@ -68,6 +70,11 @@ export class Evaluator {
                 );
             }
 
+            case IfExpression:
+                return this.evalIfExpression(node as IfExpression);
+
+            case BlockStatement:
+                return this.evalBlockStatement(node as BlockStatement);
             default:
                 return this.null;
         }
@@ -188,7 +195,48 @@ export class Evaluator {
         }
     }
 
+    private evalIfExpression(ie: IfExpression): Object {
+        const condition = this.eval(ie.condition);
+
+        if (condition.type === ObjectTypes.ERROR) {
+            return condition;
+        }
+
+        if (this.isTruthy(condition)) {
+            return this.eval(ie.consequence);
+        }
+
+        if (ie.alternative) {
+            return this.eval(ie.alternative);
+        }
+
+        return this.null;
+    }
+
+    private evalBlockStatement(node: BlockStatement): Object {
+        let result: Object = this.null;
+
+        for (let statement of node.statements) {
+            result = this.eval(statement);
+        }
+
+        return result;
+    }
+
     private newError(msg: string): Object {
         return new Error(msg);
+    }
+
+    private isTruthy(obj: Object): boolean {
+        switch (obj) {
+            case this.null:
+                return false;
+            case this.true:
+                return true;
+            case this.false:
+                return false;
+            default:
+                return true;
+        }
     }
 }

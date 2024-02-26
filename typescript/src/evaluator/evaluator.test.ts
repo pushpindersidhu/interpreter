@@ -70,6 +70,27 @@ test("evaluateBangOperator", () => {
     }
 });
 
+test("evaluateIfElseExpressions", () => {
+    const testCases = [
+        { input: "if (true) { 10 }", expected: 10 },
+        { input: "if (false) { 10 }", expected: null },
+        { input: "if (1) { 10 }", expected: 10 },
+        { input: "if (1 < 2) { 10 }", expected: 10 },
+        { input: "if (1 > 2) { 10 }", expected: null },
+        { input: "if (1 > 2) { 10 } else { 20 }", expected: 20 },
+        { input: "if (1 < 2) { 10 } else { 20 }", expected: 10 },
+    ];
+
+    for (const { input, expected } of testCases) {
+        const evaluated = evaluate(input);
+        if (expected === null) {
+            expect(evaluated.type).toBe(ObjectTypes.NULL);
+        } else {
+            testIntegerObject(evaluated, expected);
+        }
+    }
+});
+
 function evaluate(input: string) {
     const lexer = new Lexer(input);
     const parser = new Parser(lexer);
