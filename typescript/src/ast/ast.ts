@@ -296,3 +296,42 @@ export class CallExpression implements Expression {
 
     expressionNode(): void {}
 }
+
+export class StringLiteral implements Expression {
+    token: Token;
+    value: string;
+
+    constructor(token: Token) {
+        this.token = token;
+    }
+
+    tokenLiteral(): string {
+        return this.token.literal;
+    }
+
+    toString(): string {
+        return this.token.literal;
+    }
+
+    expressionNode(): void {}
+}
+
+export class ArrayLiteral implements Expression {
+    token: Token;
+    elements: Expression[];
+
+    constructor(token: Token) {
+        this.token = token;
+        this.elements = [];
+    }
+
+    tokenLiteral(): string {
+        return this.token.literal;
+    }
+
+    toString(): string {
+        return `[${this.elements.map((e) => e.toString()).join(", ")}]`;
+    }
+
+    expressionNode(): void {}
+}

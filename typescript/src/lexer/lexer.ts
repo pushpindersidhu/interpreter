@@ -99,6 +99,15 @@ export class Lexer {
             case "}":
                 token = createToken(Tokens.RBRACE, this.ch);
                 break;
+            case '"':
+                token = createToken(Tokens.STRING, this.readString());
+                break;
+            case "[":
+                token = createToken(Tokens.LBRACKET, this.ch);
+                break;
+            case "]":
+                token = createToken(Tokens.RBRACKET, this.ch);
+                break;
             case "\0":
                 token = createToken(Tokens.EOF, "EOF");
                 break;
@@ -168,5 +177,15 @@ export class Lexer {
         }
         this.position = this.readPosition;
         this.readPosition++;
+    }
+
+    private readString(): string {
+        const position = this.position + 1;
+
+        do {
+            this.readChar();
+        } while (this.ch != '"' && this.ch != "\0");
+
+        return this.input.slice(position, this.position);
     }
 }

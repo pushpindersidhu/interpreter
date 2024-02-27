@@ -16,6 +16,8 @@ import {
     BlockStatement,
     FunctionLiteral,
     CallExpression,
+    StringLiteral,
+    ArrayLiteral,
 } from "../ast";
 import { Tokens } from "../token";
 
@@ -358,6 +360,37 @@ test("parseCallExpression", function () {
     testLiteralExpression(call.arguments[0], 1);
     testInfixExpression(call.arguments[1], 2, "*", 3);
     testInfixExpression(call.arguments[2], 4, "+", 5);
+});
+
+test("parseStringLiteral", function () {
+    const input = `"hello world"`;
+
+    const program = parseProgram(input);
+    expect(program.statements.length).toBe(1);
+
+    const stmt = program.statements[0];
+    expect(stmt).toBeInstanceOf(ExpressionStatement);
+
+    const exprStmt = stmt as ExpressionStatement;
+    expect(exprStmt.expression).toBeInstanceOf(StringLiteral);
+
+    const str = exprStmt.expression as StringLiteral;
+    expect(str.value).toBe("hello world");
+});
+
+test("parseArrayLiteral", function () {
+    const input = "[1, 2 * 2, 3 + 3]";
+    const program = parseProgram(input);
+
+    const stmt = program.statements[0];
+    const array = stmt as ExpressionStatement;
+    expect(array.expression).toBeInstanceOf(ArrayLiteral);
+
+    const elements = (array.expression as ArrayLiteral).elements;
+    expect(elements.length).toBe(3);
+    testIntegerLiteral(elements[0], 1);
+    testInfixExpression(elements[1], 2, "*", 2);
+    testInfixExpression(elements[2], 3, "+", 3);
 });
 
 function parseProgram(input: string): Program {

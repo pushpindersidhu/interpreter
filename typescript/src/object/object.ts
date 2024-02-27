@@ -3,9 +3,11 @@ import { Environment } from "./environment";
 
 export const ObjectTypes = {
     NULL: "NULL",
+    ERROR: "ERROR",
     INTEGER: "INTEGER",
     BOOLEAN: "BOOLEAN",
-    ERROR: "ERROR",
+    STRING: "STRING",
+    ARRAY: "ARRAY",
     FUNCTION: "FUNCTION",
     RETURN_VALUE: "RETURN_VALUE",
 };
@@ -95,5 +97,31 @@ export class ReturnValue implements Object {
 
     inspect(): string {
         return this.value.inspect();
+    }
+}
+
+export class String implements Object {
+    type = ObjectTypes.STRING;
+    value: string;
+
+    constructor(value: string) {
+        this.value = value;
+    }
+
+    inspect(): string {
+        return this.value;
+    }
+}
+
+export class Array implements Object {
+    type = ObjectTypes.ARRAY;
+    elements: Object[];
+
+    constructor(elements: Object[]) {
+        this.elements = elements;
+    }
+
+    inspect(): string {
+        return `[${this.elements.map((e) => e.inspect()).join(", ")}]`;
     }
 }

@@ -8,6 +8,8 @@ import {
     Boolean,
     Environment,
     Function,
+    String,
+    Array,
 } from "../object";
 
 test("evaluateIntegerLiteral", () => {
@@ -185,6 +187,35 @@ test("closures", () => {
 
     const evaluated = evaluate(input);
     testIntegerObject(evaluated, 4);
+});
+
+test("stringLiteral", () => {
+    const input = `"Hello World!"`;
+    const evaluated = evaluate(input);
+
+    expect(evaluated).toBeInstanceOf(Object);
+
+    const obj = evaluated as Object;
+    expect(obj.type).toBe(ObjectTypes.STRING);
+
+    const strObj = obj as String;
+    expect(strObj.value).toBe("Hello World!");
+});
+
+test("arrayLiteral", () => {
+    const input = "[1, 2 * 2, 3 + 3]";
+    const evaluated = evaluate(input);
+
+    expect(evaluated).toBeInstanceOf(Object);
+
+    const obj = evaluated as Object;
+    expect(obj.type).toBe(ObjectTypes.ARRAY);
+
+    const arrObj = obj as Array;
+    expect(arrObj.elements.length).toBe(3);
+    testIntegerObject(arrObj.elements[0], 1);
+    testIntegerObject(arrObj.elements[1], 4);
+    testIntegerObject(arrObj.elements[2], 6);
 });
 
 function evaluate(input: string) {

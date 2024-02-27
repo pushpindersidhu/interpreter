@@ -22,6 +22,8 @@ if (5 < 10) {
 
 10 == 10;
 10 != 9;
+"Hello World";
+[1, 2];
 `;
 
     const tokens: Token[] = [
@@ -97,6 +99,14 @@ if (5 < 10) {
         { type: Tokens.INT, literal: "10" },
         { type: Tokens.NOT_EQ, literal: "!=" },
         { type: Tokens.INT, literal: "9" },
+        { type: Tokens.SEMICOLON, literal: ";" },
+        { type: Tokens.STRING, literal: "Hello World" },
+        { type: Tokens.SEMICOLON, literal: ";" },
+        { type: Tokens.LBRACKET, literal: "[" },
+        { type: Tokens.INT, literal: "1" },
+        { type: Tokens.COMMA, literal: "," },
+        { type: Tokens.INT, literal: "2" },
+        { type: Tokens.RBRACKET, literal: "]" },
         { type: Tokens.SEMICOLON, literal: ";" },
         { type: Tokens.EOF, literal: "EOF" },
     ];

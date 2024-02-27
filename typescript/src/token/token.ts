@@ -3,6 +3,7 @@ export const Tokens = {
     IDENT: "IDENT",
     ILLEGAL: "ILLEGAL",
     INT: "INT",
+    STRING: "STRING",
 
     ASSIGN: "=",
     PLUS: "+",
@@ -21,6 +22,8 @@ export const Tokens = {
     RPAREN: ")",
     LBRACE: "{",
     RBRACE: "}",
+    LBRACKET: "[",
+    RBRACKET: "]",
 
     LET: "LET",
     TRUE: "TRUE",

@@ -13,6 +13,8 @@ import {
     FunctionLiteral,
     CallExpression,
     Identifier,
+    StringLiteral,
+    ArrayLiteral,
 } from "../ast";
 import {
     Object,
@@ -21,6 +23,8 @@ import {
     Error,
     Integer,
     Boolean,
+    String,
+    Array,
     Function,
     Environment,
     ReturnValue,
@@ -105,6 +109,12 @@ export class Evaluator {
 
             case CallExpression:
                 return this.evalCallExpression(node as CallExpression, env);
+
+            case StringLiteral:
+                return this.evalStringLiteral(node as StringLiteral);
+
+            case ArrayLiteral:
+                return this.evalArrayLiteral(node as ArrayLiteral, env);
 
             default:
                 return this.null;
@@ -303,7 +313,10 @@ export class Evaluator {
         return new ReturnValue(value);
     }
 
-    private evalFunctionLiteral(node: FunctionLiteral, env: Environment): Object {
+    private evalFunctionLiteral(
+        node: FunctionLiteral,
+        env: Environment,
+    ): Object {
         return new Function(node.parameters, node.body, env);
     }
 
@@ -342,6 +355,16 @@ export class Evaluator {
         }
 
         return evaluated;
+    }
+
+    private evalStringLiteral(node: StringLiteral): Object {
+        return new String(node.value);
+    }
+
+    private evalArrayLiteral(node: ArrayLiteral, env: Environment): Object {
+        const elements: Object[] = node.elements.map((e) => this.eval(e, env));
+
+        return new Array(elements);
     }
 
     private newError(msg: string): Object {

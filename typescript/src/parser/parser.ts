@@ -1,3 +1,4 @@
+import { isError } from "util";
 import {
     BlockStatement,
     BooleanLiteral,
@@ -16,6 +17,8 @@ import {
     ReturnStatement,
     Statement,
     CallExpression,
+    StringLiteral,
+    ArrayLiteral,
 } from "../ast";
 import { Lexer } from "../lexer";
 import { Token, Tokens, TokenType } from "../token";
@@ -78,6 +81,8 @@ export class Parser {
             Tokens.FUNCTION,
             this.parseFunctionLiteral.bind(this),
         );
+        this.registerPrefix(Tokens.STRING, this.parseStringLiteral.bind(this));
+        this.registerPrefix(Tokens.LBRACKET, this.parseArrayLiteral.bind(this));
 
         this.infixParseFns = {};
         this.registerInfix(Tokens.PLUS, this.parseInfixExpression.bind(this));
@@ -483,5 +488,19 @@ export class Parser {
         }
 
         return expressions;
+    }
+
+    private parseStringLiteral(): Expression {
+        const sl = new StringLiteral(this.currToken);
+        sl.value = this.currToken.literal;
+
+        return sl;
+    }
+
+    private parseArrayLiteral(): Expression {
+        const al = new ArrayLiteral(this.currToken);
+        al.elements = this.parseExpressionList(Tokens.RBRACKET);
+
+        return al;
     }
 }
