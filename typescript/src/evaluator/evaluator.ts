@@ -28,19 +28,15 @@ import {
     Function,
     Environment,
     ReturnValue,
+    Builtin,
 } from "../object";
+import { Builtins } from "./builtin";
+
+export const NULL = new Null();
+export const TRUE = new Boolean(true);
+export const FALSE = new Boolean(false);
 
 export class Evaluator {
-    private null;
-    private true;
-    private false;
-
-    constructor() {
-        this.null = new Null();
-        this.true = new Boolean(true);
-        this.false = new Boolean(false);
-    }
-
     public eval(node: Node, env: Environment): Object {
         switch (node.constructor) {
             case Program:
@@ -117,12 +113,12 @@ export class Evaluator {
                 return this.evalArrayLiteral(node as ArrayLiteral, env);
 
             default:
-                return this.null;
+                return NULL;
         }
     }
 
     private evalProgram(node: Program, env: Environment): Object {
-        let result: Object = this.null;
+        let result: Object = NULL;
 
         for (let statement of node.statements) {
             result = this.eval(statement, env);
@@ -144,7 +140,7 @@ export class Evaluator {
     }
 
     private evalBooleanLiteral(node: BooleanLiteral): Object {
-        return node.value ? this.true : this.false;
+        return node.value ? TRUE : FALSE;
     }
 
     private evalPrefixExpression(operator: string, right: Object): Object {
@@ -162,14 +158,14 @@ export class Evaluator {
 
     private evalBangPrefixExpression(right: Object): Object {
         switch (right) {
-            case this.true:
-                return this.false;
-            case this.false:
-                return this.true;
-            case this.null:
-                return this.true;
+            case TRUE:
+                return FALSE;
+            case FALSE:
+                return TRUE;
+            case NULL:
+                return TRUE;
             default:
-                return this.false;
+                return FALSE;
         }
     }
 
@@ -194,11 +190,11 @@ export class Evaluator {
         }
 
         if (operator === "==") {
-            return left === right ? this.true : this.false;
+            return left === right ? TRUE : FALSE;
         }
 
         if (operator === "!=") {
-            return left !== right ? this.true : this.false;
+            return left !== right ? TRUE : FALSE;
         }
 
         if (left.type !== right.type) {
@@ -230,13 +226,13 @@ export class Evaluator {
             case "/":
                 return new Integer(leftValue / rightValue);
             case "<":
-                return leftValue < rightValue ? this.true : this.false;
+                return leftValue < rightValue ? TRUE : FALSE;
             case ">":
-                return leftValue > rightValue ? this.true : this.false;
+                return leftValue > rightValue ? TRUE : FALSE;
             case "==":
-                return leftValue === rightValue ? this.true : this.false;
+                return leftValue === rightValue ? TRUE : FALSE;
             case "!=":
-                return leftValue !== rightValue ? this.true : this.false;
+                return leftValue !== rightValue ? TRUE : FALSE;
             default:
                 return this.newError(
                     `unknown operator: ${left.type} ${operator} ${right.type}`,
@@ -259,11 +255,11 @@ export class Evaluator {
             return this.eval(ie.alternative, env);
         }
 
-        return this.null;
+        return NULL;
     }
 
     private evalBlockStatement(node: BlockStatement, env: Environment): Object {
-        let result: Object = this.null;
+        let result: Object = NULL;
 
         for (let statement of node.statements) {
             result = this.eval(statement, env);
@@ -288,7 +284,7 @@ export class Evaluator {
 
         env.set(node.name.value, value);
 
-        return this.null;
+        return NULL;
     }
 
     private evalIdentifier(node: Identifier, env: Environment): Object {
@@ -296,6 +292,11 @@ export class Evaluator {
 
         if (value) {
             return value;
+        }
+
+        const builtin = Builtins[node.value];
+        if (builtin) {
+            return new Builtin(builtin);
         }
 
         return this.newError(`identifier not found: ${node.value}`);
@@ -337,24 +338,28 @@ export class Evaluator {
     }
 
     private applyFunction(func: Object, args: Object[]): Object {
-        if (func.type !== ObjectTypes.FUNCTION) {
-            return this.newError(`not a function: ${func.type}`);
+        switch (func.type) {
+            case ObjectTypes.FUNCTION: {
+                const fn = func as Function;
+                const extendedEnv = new Environment(fn.env);
+
+                for (let i = 0; i < fn.parameters.length; i++) {
+                    extendedEnv.set(fn.parameters[i].value, args[i]);
+                }
+
+                const evaluated = this.eval(fn.body, extendedEnv);
+
+                if (evaluated.type === ObjectTypes.RETURN_VALUE) {
+                    return (evaluated as ReturnValue).value;
+                }
+
+                return evaluated;
+            }
+            case ObjectTypes.BUILTIN:
+                return (func as Builtin).fn(...args);
+            default:
+                return this.newError(`not a function: ${func.type}`);
         }
-
-        const fn = func as Function;
-        const extendedEnv = new Environment(fn.env);
-
-        for (let i = 0; i < fn.parameters.length; i++) {
-            extendedEnv.set(fn.parameters[i].value, args[i]);
-        }
-
-        const evaluated = this.eval(fn.body, extendedEnv);
-
-        if (evaluated.type === ObjectTypes.RETURN_VALUE) {
-            return (evaluated as ReturnValue).value;
-        }
-
-        return evaluated;
     }
 
     private evalStringLiteral(node: StringLiteral): Object {
@@ -373,11 +378,11 @@ export class Evaluator {
 
     private isTruthy(obj: Object): boolean {
         switch (obj) {
-            case this.null:
+            case NULL:
                 return false;
-            case this.true:
+            case TRUE:
                 return true;
-            case this.false:
+            case FALSE:
                 return false;
             default:
                 return true;

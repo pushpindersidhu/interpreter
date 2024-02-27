@@ -5,6 +5,7 @@ import {
     Object,
     ObjectTypes,
     Integer,
+    Error,
     Boolean,
     Environment,
     Function,
@@ -216,6 +217,166 @@ test("arrayLiteral", () => {
     testIntegerObject(arrObj.elements[0], 1);
     testIntegerObject(arrObj.elements[1], 4);
     testIntegerObject(arrObj.elements[2], 6);
+});
+
+describe("builtinFunctions", () => {
+    test("len", () => {
+        const testCases = [
+            { input: `len("")`, expected: 0 },
+            { input: `len("hello world")`, expected: 11 },
+            {
+                input: `len(1)`,
+                expected: "type INTEGER has no method len",
+            },
+            {
+                input: `len("one", "two")`,
+                expected: "invalid number of arguments. expected 1, got 2",
+            },
+            {
+                input: `len([1, 2, 3])`,
+                expected: 3,
+            },
+            {
+                input: `len([])`,
+                expected: 0,
+            },
+            {
+                input: `len([1, 2, 3], [1, 2, 3])`,
+                expected: "invalid number of arguments. expected 1, got 2",
+            },
+            {
+                input: `len([[1, 2, 3], [1, 2, 3]])`,
+                expected: 2,
+            },
+        ];
+
+        for (const { input, expected } of testCases) {
+            const evaluated = evaluate(input);
+            switch (typeof expected) {
+                case "number":
+                    testIntegerObject(evaluated, expected);
+                    break;
+                case "string":
+                    expect(evaluated).toBeInstanceOf(Error);
+                    expect((evaluated as Error).msg).toBe(expected);
+                    break;
+            }
+        }
+    });
+
+    test("first", () => {
+        const testCases = [
+            { input: `first([1, 2, 3])`, expected: 1 },
+            { input: `first([])`, expected: null },
+            { input: `first(1)`, expected: "type INTEGER has no method first" },
+            {
+                input: `first([1, 2], [3, 4])`,
+                expected: "invalid number of arguments. expected 1, got 2",
+            },
+        ];
+
+        for (const { input, expected } of testCases) {
+            const evaluated = evaluate(input);
+            switch (typeof expected) {
+                case "number":
+                    testIntegerObject(evaluated, expected);
+                    break;
+                case "string":
+                    expect(evaluated).toBeInstanceOf(Error);
+                    expect((evaluated as Error).msg).toBe(expected);
+                    break;
+            }
+        }
+    });
+
+    test("last", () => {
+        const testCases = [
+            { input: `last([1, 2, 3])`, expected: 3 },
+            { input: `last([])`, expected: null },
+            { input: `last(1)`, expected: "type INTEGER has no method last" },
+            {
+                input: `last([1, 2], [3, 4])`,
+                expected: "invalid number of arguments. expected 1, got 2",
+            },
+        ];
+
+        for (const { input, expected } of testCases) {
+            const evaluated = evaluate(input);
+            switch (typeof expected) {
+                case "number":
+                    testIntegerObject(evaluated, expected);
+                    break;
+                case "string":
+                    expect(evaluated).toBeInstanceOf(Error);
+                    expect((evaluated as Error).msg).toBe(expected);
+                    break;
+            }
+        }
+    });
+
+    test("rest", () => {
+        const testCases = [
+            { input: `rest([1, 2, 3])`, expected: [2, 3] },
+            { input: `rest(1)`, expected: "type INTEGER has no method rest" },
+            {
+                input: `rest([1, 2], [3, 4])`,
+                expected: "invalid number of arguments. expected 1, got 2",
+            },
+        ];
+
+        for (const { input, expected } of testCases) {
+            const evaluated = evaluate(input);
+            switch (typeof expected) {
+                case "object":
+                    const arr = expected as number[];
+                    expect(evaluated).toBeInstanceOf(Array);
+                    const arrObj = evaluated as Array;
+                    expect(arrObj.elements.length).toBe(arr.length);
+                    for (let i = 0; i < arr.length; i++) {
+                        testIntegerObject(arrObj.elements[i], arr[i]);
+                    }
+                    break;
+                case "string":
+                    expect(evaluated).toBeInstanceOf(Error);
+                    expect((evaluated as Error).msg).toBe(expected);
+                    break;
+            }
+        }
+    });
+
+    test("push", () => {
+        const testCases = [
+            { input: `push([1, 2, 3], 4)`, expected: [1, 2, 3, 4] },
+            { input: `push([], 1)`, expected: [1] },
+            {
+                input: `push(1, 1)`,
+                expected: "type INTEGER has no method push",
+            },
+            {
+                input: `push([1, 2], [3, 4], 5)`,
+                expected: "invalid number of arguments. expected 2, got 3",
+            },
+        ];
+
+        for (const { input, expected } of testCases) {
+            const evaluated = evaluate(input);
+            switch (typeof expected) {
+                case "object":
+                    const arr = expected as number[];
+                    expect(evaluated).toBeInstanceOf(Array);
+                    const arrObj = evaluated as Array;
+                    expect(arrObj.elements.length).toBe(arr.length);
+                    for (let i = 0; i < arr.length; i++) {
+                        testIntegerObject(arrObj.elements[i], arr[i]);
+                    }
+                    break;
+                case "string":
+                    expect(evaluated).toBeInstanceOf(Error);
+                    expect((evaluated as Error).msg).toBe(expected);
+                    break;
+            }
+        }
+    });
 });
 
 function evaluate(input: string) {

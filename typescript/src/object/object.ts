@@ -10,6 +10,7 @@ export const ObjectTypes = {
     ARRAY: "ARRAY",
     FUNCTION: "FUNCTION",
     RETURN_VALUE: "RETURN_VALUE",
+    BUILTIN: "BUILTIN",
 };
 
 export type ObjectType = (typeof ObjectTypes)[keyof typeof ObjectTypes];
@@ -123,5 +124,18 @@ export class Array implements Object {
 
     inspect(): string {
         return `[${this.elements.map((e) => e.inspect()).join(", ")}]`;
+    }
+}
+
+export class Builtin implements Object {
+    type = ObjectTypes.BUILTIN;
+    fn: (...args: Object[]) => Object;
+
+    constructor(fn: (...args: Object[]) => Object) {
+        this.fn = fn;
+    }
+
+    inspect(): string {
+        return "builtin function";
     }
 }
